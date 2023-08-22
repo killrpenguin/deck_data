@@ -1,8 +1,9 @@
 import random
+import re
 
 
-class scraper_targets():
-    def __init__(self, deck_link, link_group, category):
+class Scraper_Targets():
+    def __init__(self, deck_link, link_group=None, category=None):
         self.wait = random.randint(5, 15)
         self.deck_link = deck_link # URL
         self.link_group = link_group # ex: moxfield, tappedout, deckstats, arkedekt
@@ -10,6 +11,14 @@ class scraper_targets():
         self.deck = {}
 
 
+    def clean_data(self, link):
+        link.strip()
+        # regex removes web links with the words discord, scryfall and docs along with /word list items
+        re.sub('^/.+|.+discord.+|.+scryfall.+|.+docs.+|^/', '', link)
+        if link == '':
+            return None
+        else:
+            return link
 
 class Card():
     def __init__(self, card_name, card_type=None, cmc=None, color_identity=None):
