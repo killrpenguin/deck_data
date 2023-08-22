@@ -1,3 +1,5 @@
+from bs4 import BeautifulSoup as bs
+import requests
 import random
 import re
 
@@ -8,21 +10,22 @@ class Scraper_Targets():
         self.deck_link = deck_link # URL
         self.link_group = link_group # ex: moxfield, tappedout, deckstats, arkedekt
         self.category = category # competitive or outdated from ddb grouping
-        self.deck = {}
 
 
-    def clean_data(self, link):
-        link.strip()
-        # regex removes web links with the words discord, scryfall and docs along with /word list items
-        re.sub('^/.+|.+discord.+|.+scryfall.+|.+docs.+|^/', '', link)
-        if link == '':
-            return None
+def ddb_objects():
+    url = "https://cedh-decklist-database.com/"
+    page = requests.get(url)
+    soup = bs(page.content, "html.parser")
+    f = open('competitive_decks', 'r').read().strip().split('\n')
+    project_href = [spi['href'] for spi in soup.find_all('a', href=True)]
+    project_href = [re.sub('^/.+|.+discord.+|.+scryfall.+|.+docs.+|', '', i) for i in project_href]
+    project_href = [i.strip() for i in project_href if '' != i if '/' != i]
+    deck_objects = []
+    for i in project_href:
+        site = re.sub(".+www\.|\.c.+|.n.+|^ht.+?//|\.o.+", '', i)
+        if i in f:
+            st = Scraper_Targets(deck_link=i, link_group=site, category='Competitive')
         else:
-            return link
-
-class Card():
-    def __init__(self, card_name, card_type=None, cmc=None, color_identity=None):
-        self.card_name = card_name
-        self.card_type = card_type
-        self.cmc = cmc
-        self.color_identity = color_identity
+            st =Scraper_Targets(deck_link=i, link_group=site, category='Outdated')
+        deck_objects.append(st)
+    return deck_objects
