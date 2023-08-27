@@ -1,22 +1,26 @@
 from scraper_targets import Scraper_Targets
-from bs4 import BeautifulSoup
-import requests
+from selenium.webdriver.common.by import By
+import helper_functions
 import re
+import selenium
 
 
-class Deck(scraper_targets):
+class Deck(Scraper_Targets):
     def __init__(self, deck_link, link_group, category,
-                 deck_name, deck_author=None, commander=None):
+                 driver, deck_author=None, commander=None):
         super().__init__(deck_link, link_group, category)
-        self.deck_name = deck_name
+        # use selenium webdriver and xpath to find the name of a deck on moxfield
+        self.deck_name = driver.find_element(By.XPATH, "/span[@id='menu-deckname']/span[@class='deckheader-name']")
         self.deck_commander = commander
         self.deck_author = deck_author
-        self.deck_list = set()
+        self.deck_list = driver.find_elements(By.XPATH, "//div[@class='deckview']")
 
 
-class Card():
-    def __init__(self, card_name, card_type=None, cmc=None, color_identity=None):
-        self.card_name = card_name
-        self.card_type = card_type
-        self.cmc = cmc
-        self.color_identity = color_identity
+    def clean_moxfield(self):
+        self.deck_list = [a.text.strip().split('\n') for a in self.deck_list]
+        self.deck_list = [a for a in self.deck_list[0]]
+        decklist = [re.sub("^\d*x|[A-Za-z]/[A-Za-z]|^\$.+|^€.+|.+\(\d+.*|"
+                           "[0-9]|^R.+\sH.+|^[A-Za-z].+@.[A-Za-z].+|"
+                           "^V.+\sO.+|^A..\sT.+", '', a) for a in self.deck_list]
+        self.deck_list = [a.strip() for a in decklist if '' != a]
+        return self.deck_list

@@ -12,12 +12,21 @@ class Scraper_Targets():
         self.category = category # competitive or outdated from ddb grouping
 
 
+    def __iter__(self):
+        return self
+
+
+    def __next__(self):
+        pass
+
+
 def ddb_objects():
     url = "https://cedh-decklist-database.com/"
     page = requests.get(url)
     soup = bs(page.content, "html.parser")
     f = open('competitive_decks', 'r').read().strip().split('\n')
     project_href = [spi['href'] for spi in soup.find_all('a', href=True)]
+    # regex removes any href with the word discord, scryfall, docs and anything that starts with a /
     project_href = [re.sub('^/.+|.+discord.+|.+scryfall.+|.+docs.+|', '', i) for i in project_href]
     project_href = [i.strip() for i in project_href if '' != i if '/' != i]
     deck_objects = []

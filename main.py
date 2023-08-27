@@ -1,9 +1,17 @@
 from scraper_targets import ddb_objects
+from deck_objects import Deck
+import helper_functions
 
-f = open('ddb_obects', 'x')
+
+proxy = "http://103.77.60.14:80"
+driver = helper_functions.web_driver(proxy=proxy)
 target_objects = ddb_objects()
-target_objects = [f.write(i.deck_link + '\n' +
-                          i.category + '\n' +
-                          i.link_group + '\n')
-                  for i in target_objects]
-f.close()
+decks = []
+for i in target_objects:
+    print(f'{i.deck_link}')
+    if 'moxfield' == i.link_group:
+        mx_deck = Deck(deck_link=i.deck_link, link_group=i.link_group,
+                    category=i.category, driver=driver)
+        decks.append(mx_deck)
+        driver.close()
+        print(decks)
