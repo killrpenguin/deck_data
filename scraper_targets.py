@@ -1,12 +1,10 @@
 from bs4 import BeautifulSoup as bs
 import requests
 import random
-import selenium
-from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver import EdgeOptions
 import re
 
+import helper_functions
 
 
 class Scraper_Targets():
@@ -21,11 +19,7 @@ class Scraper_Targets():
         self.deck_author = deck_author
 
     def get_mx(self, proxy):
-        edge_options = EdgeOptions()
-        edge_options.use_chromium = True
-        edge_options.add_argument('headless'), edge_options.add_argument('disable-gpu')
-        edge_options.add_argument("--proxy_server=%s" % proxy)
-        driver = selenium.webdriver.Edge(options=edge_options)
+        driver = helper_functions.web_driver(proxy=proxy)
         driver.get(self.deck_link)
         driver.implicitly_wait(self.wait)
         self.deck_name = driver.find_element(By.XPATH, "//div[@class='deckheader']"
