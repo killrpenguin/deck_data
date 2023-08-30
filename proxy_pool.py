@@ -11,7 +11,7 @@ async def task_coroutine(session, proxy):
         async with session.get("http://ident.me/", proxy=proxy, ssl=False, timeout=600) as resp:
             await resp.text()
             if resp.status in VALID_STATUSES:
-                print('Status Code: ' + str(resp.status))
+                print(f'Status Code: {resp.status}')
                 helper_functions.set_working(proxy, working_set)
     except Exception as e:
         print("Exception: ", e)
@@ -30,7 +30,7 @@ async def main_proxy_pool() -> list:
             print(e)
         await asyncio.sleep(0)
     lst = [a for a in working_set]
-    print('Number of useable proxies: ' + str(len(lst)))
+    print(f'Number of useable proxies: {len(lst)}')
     return lst
 
 
