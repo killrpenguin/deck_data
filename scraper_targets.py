@@ -1,6 +1,11 @@
 import random
+
+from selenium.common import NoSuchElementException, ElementNotInteractableException
 from selenium.webdriver.common.by import By
 import re
+
+from selenium.webdriver.support.wait import WebDriverWait
+
 import helper_functions
 
 
@@ -18,12 +23,14 @@ class Scraper_Targets():
     def get_mx(self, proxy):
         driver = helper_functions.web_driver(proxy=proxy)
         driver.get(self.deck_link)
-        driver.implicitly_wait(self.wait)
+        errors = [NoSuchElementException, ElementNotInteractableException]
+        wait = WebDriverWait(driver, timeout=self.wait, poll_frequency=.2, ignored_exceptions=errors)
+        wait.until(lambda d : decklist_dirty.is_displayed())
         self.deck_author = driver.find_element(By.XPATH, "//div[@class='container py-5 text-white']"
                                                          "//div[@class='mb-3']//div[@class='d-flex align-items-center']"
                                                          "//div[@class='flex-grow-1']"
                                                          "//div[@class='h3 d-flex flex-wrap align-items-center']").text.split(',')
-        self.deck_author = [i.strip() for i in self.deck_author]
+        self.deck_author = [string.strip() for string in self.deck_author]
         self.deck_name = driver.find_element(By.XPATH, "//div[@class='deckheader']"
                                                   "//div[@class='deckheader-content']/"
                                                   "/div[@class='container py-5 text-white']"
@@ -31,12 +38,12 @@ class Scraper_Targets():
                                                   "/span[@id='menu-deckname']"
                                                   "//span[@class='deckheader-name']").text
         decklist_dirty = driver.find_elements(By.XPATH, "//div[@class='deckview']")
-        decklist = [a.text.strip().split('\n') for a in decklist_dirty]
-        decklist = [a for a in decklist[0]]
+        decklist = [card.text.strip().split('\n') for card in decklist_dirty]
+        decklist = [card for card in decklist[0]]
         decklist = [re.sub("^\d*x|[A-Za-z]/[A-Za-z]|^\$.+|^€.+|.+\(\d+.*|"
                            "[0-9]|^R.+\sH.+|^[A-Za-z].+@.[A-Za-z].+|"
-                           "^V.+\sO.+|^A..\sT.+|\.|^T.+\sLa.+\sE.+", '', a) for a in decklist]
-        self.deck_list = [a.strip() for a in decklist if '' != a]
+                           "^V.+\sO.+|^A..\sT.+|\.|^T.+\sLa.+\sE.+", '', card) for card in decklist]
+        self.deck_list = [card.strip() for card in decklist if '' != card]
         driver.close()
 
 
@@ -53,10 +60,10 @@ class Scraper_Targets():
                                                   "//div[@class='row'][1]//div[@class='col-xs-12']"
                                                   "//div[@class='well well-jumbotron']/h2")
         decklist_dirty = driver.find_elements(By.XPATH, "//div[@class='row board-container'][1]//descendant::div")
-        decklist = [a.text.strip().split('\n') for a in decklist_dirty]
-        decklist = [a for b in decklist for a in b]
-        decklist = [re.sub("^[0-9]x|[1-9][0-9]x", '', a) for a in decklist]
-        self.deck_list = [a.strip() for a in decklist if a if '(' not in a]
+        decklist = [card.text.strip().split('\n') for card in decklist_dirty]
+        decklist = [section_a for section_b in decklist for section_a in section_b]
+        decklist = [re.sub("^[0-9]x|[1-9][0-9]x", '', card) for card in decklist]
+        self.deck_list = [card.strip() for card in decklist if card if '(' not in card]
         driver.close()
 
 

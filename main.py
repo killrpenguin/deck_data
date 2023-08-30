@@ -1,4 +1,4 @@
-from scraper_targets import ddb_objects
+from ddb_list import ddb_objects
 from card_object import Card
 
 proxy = 'http://45.225.184.177:999'

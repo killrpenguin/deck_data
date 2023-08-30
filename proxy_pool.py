@@ -23,13 +23,13 @@ async def main_proxy_pool() -> list:
     header = {"Authorization": "Basic bG9naW46cGFzcw=="}
     async with aiohttp.ClientSession(connector=tcp_connection, headers=header, trust_env=True) as session:
         try:
-            tasks = [asyncio.create_task(task_coroutine(session, i)) for i in proxy_list]
+            tasks = [asyncio.create_task(task_coroutine(session, proxy)) for proxy in proxy_list]
             for task in tasks:
                 await task
         except Exception as e:
             print(e)
         await asyncio.sleep(0)
-    lst = [a for a in working_set]
+    lst = [proxy for proxy in working_set]
     print(f'Number of useable proxies: {len(lst)}')
     return lst
 
