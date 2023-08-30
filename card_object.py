@@ -22,13 +22,14 @@ class Card:
         pause = randint(5, 15)
         driver = helper_functions.web_driver(proxy=proxy)
         driver.get('https://scryfall.com/')
-        driver.implicitly_wait(pause)
         search_box = driver.find_element(By.XPATH, "//html/body/div[@id='main']//div[@class='homepage']"
                                                    "//div[@class='inner-flex']//form[@class='homepage-form']"
                                                    "//input[@id='q']")
         search_box.send_keys(card_name)
         search_box.send_keys(Keys.ENTER)
-        self.card_name = driver.find_element(By.XPATH, "//div[@class='card-text']"
+        driver.implicitly_wait(pause)
+        self.card_name = driver.find_element(By.XPATH, "//html//body//div[@id='main']//div[@class='card-profile']"
+                                                       "//div[@class='inner-flex']//div[@class='card-text']"
                                                        "//h1[@class='card-text-title']"
                                                        "//span[@class='card-text-card-name']").text
         self.cmc = driver.find_element(By.XPATH, "//div[@class='card-text']"
@@ -43,3 +44,10 @@ class Card:
         self.card_text = driver.find_element(By.XPATH, "//div[@class='card-text']"
                                                        "//div[@class='card-text-box']").text
         driver.close()
+
+"""
+card = Card('Mana Crypt', '', '', [], '')
+proxy = 'http://45.225.184.177:999'
+card.populate_card_info(card.card_name, proxy)
+print(f'{card.card_name}, {card.card_type}, {card.card_text}, {card.cmc}, {card.legal_status}')
+"""
