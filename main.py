@@ -1,7 +1,7 @@
 from ddb_list import ddb_objects
 # from card_object import Card
 
-proxy = 'http://45.225.184.177:999'
+proxy = 'http://24.158.29.166:80'
 target_objects = ddb_objects()
 for target in target_objects:
     if 'moxfield' == target.link_group:

@@ -1,11 +1,9 @@
 import random
-from selenium.webdriver.support import expected_conditions as ec
-from selenium.common import NoSuchElementException, ElementNotInteractableException
-from selenium.webdriver.common.by import By
 import re
-
+from selenium.webdriver.support import expected_conditions as ec
+from selenium.common import NoSuchElementException, ElementNotInteractableException, TimeoutException
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
-
 import helper_functions
 
 
@@ -21,25 +19,20 @@ class Scraper_Targets():
         self.deck_list = []
 
     def get_mx(self, proxy):
+        deck_xpath = """/html/body/div[1]/main/div[8]/div[1]/div[2]/div[1]"""
+        author_xpath = """//html//body//div[1]//main//div[3]//div[2]//div[1]//div//div[1]//div//div[2]//div"""
+        name_xpath = """//html//body//div[1]//main//div[3]//div[2]//div[1]//div//form//h1//span//span"""
         driver = helper_functions.web_driver(proxy=proxy)
         driver.get(self.deck_link)
         errors = [NoSuchElementException, ElementNotInteractableException]
         wait = WebDriverWait(driver, timeout=self.wait, poll_frequency=.2, ignored_exceptions=errors)
-        self.deck_author = wait.until(ec.presence_of_element_located((By.XPATH, "//div[@class='container py-5 text-white']"
-                                                         "//div[@class='mb-3']//div[@class='d-flex align-items-center']"
-                                                         "//div[@class='flex-grow-1']"
-                                                         "//div[@class='h3 d-flex flex-wrap align-items-center']"))).text.split(',')
+        self.deck_author = wait.until(ec.presence_of_element_located((By.XPATH, author_xpath))).text.split(',')
         self.deck_author = [name.strip() for name in self.deck_author]
-        self.deck_name = wait.until(ec.presence_of_element_located((By.XPATH, """/div[@class='deckheader']
-        /div[@class='deckheader-content']/div[@class='container py-5 text-white']
-        /form/h1[@class='mb-2']/span[@id='menu-deckname']/span[@class='deckheader-name']"""))).text
-        decklist_dirty = wait.until(ec.presence_of_element_located((By.XPATH, "//div[@class='deckview]")))
-        decklist = [card.text.strip().split('\n') for card in decklist_dirty]
-        decklist = [card for card in decklist[0]]
-        decklist = [re.sub("^\d*x|[A-Za-z]/[A-Za-z]|^\$.+|^€.+|.+\(\d+.*|"
-                           "[0-9]|^R.+\sH.+|^[A-Za-z].+@.[A-Za-z].+|"
-                           "^V.+\sO.+|^A..\sT.+|\.|^T.+\sLa.+\sE.+", '', card) for card in decklist]
-        self.deck_list = [card.strip() for card in decklist if '' != card]
+        self.deck_name = wait.until(ec.presence_of_element_located((By.XPATH, name_xpath))).text
+        self.deck_list = wait.until(ec.presence_of_element_located((By.XPATH, deck_xpath))).text.split('\n')
+        self.deck_list = [re.sub("^[0-9]|^[0-9][0-9]|^//|^C.+(.)|^A.+(.)|^E.+(.)|^B.+(.)|^P.+(.)|^I.+(.)|^S.+(.)|^L.+(.)", '', card)
+                 for card in self.deck_list]
+        self.deck_list = [card.strip() for card in self.deck_list if '' != card]
         driver.close()
 
 
