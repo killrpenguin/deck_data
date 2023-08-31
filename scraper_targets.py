@@ -1,5 +1,5 @@
 import random
-
+from selenium.webdriver.support import expected_conditions as ec
 from selenium.common import NoSuchElementException, ElementNotInteractableException
 from selenium.webdriver.common.by import By
 import re
@@ -11,7 +11,7 @@ import helper_functions
 
 class Scraper_Targets():
     def __init__(self, deck_link, link_group=None, category=None, deck_commander=None):
-        self.wait = random.randint(5, 15)
+        self.wait = random.randint(1, 3)
         self.deck_link = deck_link # URL
         self.link_group = link_group # ex: This will define which scraper function to use. Moxfield, tappedout, etc.
         self.category = category # competitive or outdated from ddb grouping
@@ -25,19 +25,15 @@ class Scraper_Targets():
         driver.get(self.deck_link)
         errors = [NoSuchElementException, ElementNotInteractableException]
         wait = WebDriverWait(driver, timeout=self.wait, poll_frequency=.2, ignored_exceptions=errors)
-        wait.until(lambda d : decklist_dirty.is_displayed())
-        self.deck_author = driver.find_element(By.XPATH, "//div[@class='container py-5 text-white']"
+        self.deck_author = wait.until(ec.presence_of_element_located((By.XPATH, "//div[@class='container py-5 text-white']"
                                                          "//div[@class='mb-3']//div[@class='d-flex align-items-center']"
                                                          "//div[@class='flex-grow-1']"
-                                                         "//div[@class='h3 d-flex flex-wrap align-items-center']").text.split(',')
-        self.deck_author = [string.strip() for string in self.deck_author]
-        self.deck_name = driver.find_element(By.XPATH, "//div[@class='deckheader']"
-                                                  "//div[@class='deckheader-content']/"
-                                                  "/div[@class='container py-5 text-white']"
-                                                  "//form/h1[@class='mb-2']/"
-                                                  "/span[@id='menu-deckname']"
-                                                  "//span[@class='deckheader-name']").text
-        decklist_dirty = driver.find_elements(By.XPATH, "//div[@class='deckview']")
+                                                         "//div[@class='h3 d-flex flex-wrap align-items-center']"))).text.split(',')
+        self.deck_author = [name.strip() for name in self.deck_author]
+        self.deck_name = wait.until(ec.presence_of_element_located((By.XPATH, """/div[@class='deckheader']
+        /div[@class='deckheader-content']/div[@class='container py-5 text-white']
+        /form/h1[@class='mb-2']/span[@id='menu-deckname']/span[@class='deckheader-name']"""))).text
+        decklist_dirty = wait.until(ec.presence_of_element_located((By.XPATH, "//div[@class='deckview]")))
         decklist = [card.text.strip().split('\n') for card in decklist_dirty]
         decklist = [card for card in decklist[0]]
         decklist = [re.sub("^\d*x|[A-Za-z]/[A-Za-z]|^\$.+|^€.+|.+\(\d+.*|"
@@ -50,7 +46,9 @@ class Scraper_Targets():
     def get_tp(self, proxy):
         driver = helper_functions.web_driver(proxy=proxy)
         driver.get(self.deck_link)
-        driver.implicitly_wait(self.wait)
+        errors = [NoSuchElementException, ElementNotInteractableException]
+        wait = WebDriverWait(driver, timeout=self.wait, poll_frequency=.2, ignored_exceptions=errors)
+        wait.until(lambda d : decklist_dirty.is_displayed())
         self.deck_name = driver.find_element(By.XPATH, "//body[@id='sitebody']"
                                                   "//div[@id='main-content']"
                                                   "//div[@id='body']"
