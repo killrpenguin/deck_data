@@ -9,12 +9,12 @@ import helper_functions
 
 class Scraper_Targets():
     def __init__(self, deck_link, link_group=None, category=None, deck_commander=None):
-        self.wait = random.randint(1, 3)
+        self.wait = random.randint(5, 15)
         self.deck_link = deck_link # URL
         self.link_group = link_group # ex: This will define which scraper function to use. Moxfield, tappedout, etc.
         self.category = category # competitive or outdated from ddb grouping
         self.deck_name = str
-        self.deck_commander = deck_commander # Populate later
+        self.deck_commander = deck_commander
         self.deck_author = []
         self.deck_list = []
 
@@ -29,9 +29,14 @@ class Scraper_Targets():
         self.deck_author = wait.until(ec.presence_of_element_located((By.XPATH, author_xpath))).text.split(',')
         self.deck_author = [name.strip() for name in self.deck_author]
         self.deck_name = wait.until(ec.presence_of_element_located((By.XPATH, name_xpath))).text
+        commander_string = wait.until(ec.presence_of_element_located((By.XPATH, deck_xpath))).text.replace('\n', '')
+        # regex returns the string between grouping 1 Example= 'r(num)num' and grouping 2 Example='Ba(num)
+        # self.deck_commander = re.search("(?<=r\(\d\)\d).*?(?=Ba.+\(\d\))", commander_string).group()
         self.deck_list = wait.until(ec.presence_of_element_located((By.XPATH, deck_xpath))).text.split('\n')
-        self.deck_list = [re.sub("^[0-9]|^[0-9][0-9]|^//|^C.+(.)|^A.+(.)|^E.+(.)|^B.+(.)|^P.+(.)|^I.+(.)|^S.+(.)|^L.+(.)", '', card)
-                 for card in self.deck_list]
+        # regex replaces all numbers, and the 9 card type catagories from each list with ''
+        self.deck_list = [
+            re.sub("^[0-9]|^[0-9][0-9]|^C.+(.)|^A.+(.)|^E.+(.)|^B.+(.)|^P.+(.)|^I.+(.)|^S.+(.)|^L.+(.)", '', card) for
+            card in self.deck_list]
         self.deck_list = [card.strip() for card in self.deck_list if '' != card]
         driver.close()
 
