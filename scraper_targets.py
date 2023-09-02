@@ -29,7 +29,8 @@ class Scraper_Targets():
         self.deck_author = wait.until(ec.presence_of_element_located((By.XPATH, author_xpath))).text.split(',')
         self.deck_author = [name.strip() for name in self.deck_author]
         self.deck_name = wait.until(ec.presence_of_element_located((By.XPATH, name_xpath))).text
-        commander_string = wait.until(ec.presence_of_element_located((By.XPATH, deck_xpath))).text.replace('\n', '')
+        # fix the next 3 lines later.
+        # commander_string = wait.until(ec.presence_of_element_located((By.XPATH, deck_xpath))).text.replace('\n', '')
         # regex returns the string between grouping 1 Example= 'r(num)num' and grouping 2 Example='Ba(num)
         # self.deck_commander = re.search("(?<=r\(\d\)\d).*?(?=Ba.+\(\d\))", commander_string).group()
         self.deck_list = wait.until(ec.presence_of_element_located((By.XPATH, deck_xpath))).text.split('\n')

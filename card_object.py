@@ -28,7 +28,7 @@ class Card:
         xpath_cmc = "/html/body/div[3]/div[1]/div/div[3]/h1/span[2]/abbr"
         xpath_legal_status = "/html/body/div[3]/div[1]/div/div[3]/dl/div[6]/div[1]"
         xpath_card_text = "/html/body/div[3]/div[1]/div/div[3]/div"
-        pause = randint(1, 4)
+        pause = randint(5, 12)
         driver = helper_functions.web_driver(proxy=proxy)
         driver.get('https://scryfall.com/')
         errors = [NoSuchElementException, ElementNotInteractableException]
