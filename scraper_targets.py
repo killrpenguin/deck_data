@@ -19,9 +19,9 @@ class Scraper_Targets():
         self.deck_list = []
 
     def get_mx(self, proxy):
-        deck_xpath = """/html/body/div[1]/main/div[8]/div[1]/div[2]/div[1]"""
-        author_xpath = """/html/body/div[1]/main/div[3]/div[2]/div[1]/div/div[1]/div/div[2]/div/span/a"""
-        name_xpath = """/html/body/div[1]/main/div[3]/div[2]/div[1]/div/form/h1/span/span"""
+        deck_xpath = '//*[@id="maincontent"]/div[8]/div[1]/div[2]/div[1]'
+        author_xpath = "/html/body/div[1]/main/div[3]/div[2]/div[1]/div/div[1]/div/div[2]/div/span/a"
+        name_xpath = '//*[@id="menu-deckname"]/span'
         driver = helper_functions.web_driver(proxy=proxy)
         driver.get(self.deck_link)
         errors = [NoSuchElementException, ElementNotInteractableException]
@@ -30,15 +30,12 @@ class Scraper_Targets():
         self.deck_author = [name.strip() for name in self.deck_author]
         self.deck_name = wait.until(ec.presence_of_element_located((By.XPATH, name_xpath))).text
         # fix the next 3 lines later.
-        # commander_string = wait.until(ec.presence_of_element_located((By.XPATH, deck_xpath))).text.replace('\n', '')
-        # regex returns the string between grouping 1 Example= 'r(num)num' and grouping 2 Example='Ba(num)
-        # self.deck_commander = re.search("(?<=r\(\d\)\d).*?(?=Ba.+\(\d\))", commander_string).group()
         self.deck_list = wait.until(ec.presence_of_element_located((By.XPATH, deck_xpath))).text.split('\n')
         # regex replaces all numbers, and the 9 card type catagories from each list with ''
         self.deck_list = [
             re.sub("^[0-9]|^[0-9][0-9]|^C.+(.)|^A.+(.)|^E.+(.)|^B.+(.)|^P.+(.)|^I.+(.)|^S.+(.)|^L.+(.)", '', card) for
             card in self.deck_list]
-        self.deck_list = [card.strip() for card in self.deck_list if '' != card]
+        self.deck_list = [card.strip() for card in self.deck_list if '' != card if '$' not in card]
         driver.close()
 
 

@@ -47,8 +47,9 @@ class Card:
                     self.card_text.append("Back: " + text)
                 self.legal_status = self.card_dict['legalities']['commander']
         except Exception as e:
+            print(self.card_dict['name'])
             print(e)
-            print(self.card_name)
+
 
         time.sleep(.25)
 
