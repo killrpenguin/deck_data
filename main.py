@@ -8,6 +8,6 @@ for target in target_objects:
         target.get_mx(proxy=proxy)
         print(f'{target.deck_link} {target.deck_name} {target.category}, {target.deck_author}, {target.deck_commander}')
         for card in target.deck_list:
-            card_obj = Card('', '', '', [], '')
-            card_obj.populate_card_info(card, proxy)
+            card_obj = Card('', '', '', [], '', '', {})
+            card_obj.populate_with_api(card)
             card_obj.print_card_details()

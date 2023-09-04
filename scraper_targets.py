@@ -20,12 +20,12 @@ class Scraper_Targets():
 
     def get_mx(self, proxy):
         deck_xpath = """/html/body/div[1]/main/div[8]/div[1]/div[2]/div[1]"""
-        author_xpath = """//html//body//div[1]//main//div[3]//div[2]//div[1]//div//div[1]//div//div[2]//div"""
-        name_xpath = """//html//body//div[1]//main//div[3]//div[2]//div[1]//div//form//h1//span//span"""
+        author_xpath = """/html/body/div[1]/main/div[3]/div[2]/div[1]/div/div[1]/div/div[2]/div/span/a"""
+        name_xpath = """/html/body/div[1]/main/div[3]/div[2]/div[1]/div/form/h1/span/span"""
         driver = helper_functions.web_driver(proxy=proxy)
         driver.get(self.deck_link)
         errors = [NoSuchElementException, ElementNotInteractableException]
-        wait = WebDriverWait(driver, timeout=self.wait, poll_frequency=.2, ignored_exceptions=errors)
+        wait = WebDriverWait(driver, timeout=30, poll_frequency=.2, ignored_exceptions=errors)
         self.deck_author = wait.until(ec.presence_of_element_located((By.XPATH, author_xpath))).text.split(',')
         self.deck_author = [name.strip() for name in self.deck_author]
         self.deck_name = wait.until(ec.presence_of_element_located((By.XPATH, name_xpath))).text
