@@ -1,53 +1,60 @@
 from dataclasses import dataclass
 from typing import List
-from selenium.webdriver.support import expected_conditions as ec
-from selenium.common import NoSuchElementException, ElementNotInteractableException
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from random import randint
-from selenium.webdriver.support.wait import WebDriverWait
-
-import helper_functions
+from typing import Dict
+import time
+import json
+import requests
+from bs4 import BeautifulSoup
 
 
 @dataclass()
 class Card:
     card_name: str
-    cmc: str
+    mc: str
     card_type: str
     card_text: List
     legal_status: str
+    card_layout: str
+    json : Dict
 
 
     def print_card_details(self):
-        print(f'{self.card_name}, {self.cmc}, {self.card_type}, {self.legal_status}, {self.card_text}')
+        print(f'{self.card_name}, {self.mc}, {self.card_type}, {self.legal_status}, {self.card_text}')
 
-    def populate_card_info(self, card_name, proxy):
-        xpath_card_name = "/html/body/div[3]/div[1]/div/div[3]/h1/span[1]"
-        xpath_card_type = "/html/body/div[3]/div[1]/div/div[3]/p[1]"
-        xpath_cmc = "/html/body/div[3]/div[1]/div/div[3]/h1/span[2]/abbr"
-        xpath_legal_status = "/html/body/div[3]/div[1]/div/div[3]/dl/div[6]/div[1]"
-        xpath_card_text = "/html/body/div[3]/div[1]/div/div[3]/div"
-        pause = randint(5, 12)
-        driver = helper_functions.web_driver(proxy=proxy)
-        driver.get('https://scryfall.com/')
-        errors = [NoSuchElementException, ElementNotInteractableException]
-        wait = WebDriverWait(driver, timeout=pause, poll_frequency=.2, ignored_exceptions=errors)
-        search_box = driver.find_element(By.XPATH, "//html/body/div[@id='main']//div[@class='homepage']"
-                                                   "//div[@class='inner-flex']//form[@class='homepage-form']"
-                                                   "//input[@id='q']")
-        search_box.send_keys(card_name)
-        search_box.send_keys(Keys.ENTER)
-        self.card_name = wait.until(ec.presence_of_element_located((By.XPATH, xpath_card_name))).text
-        self.card_type = wait.until(ec.presence_of_element_located((By.XPATH, xpath_card_type))).text
-        self.cmc = wait.until(ec.presence_of_element_located((By.XPATH, xpath_cmc))).text
-        self.legal_status = wait.until(ec.presence_of_element_located((By.XPATH, xpath_legal_status))).text
-        self.card_text = wait.until(ec.presence_of_element_located((By.XPATH, xpath_card_text))).text
-        driver.close()
 
-"""
-card = Card('', '', '', [], '')
+    # REMEMBER TO LIMIT TO < 10 REQUESTS PER SECOND
+    def populate_with_api(self, card):
+        link = "https://api.scryfall.com/cards/named?fuzzy=" + card
+        page = requests.get(link)
+        soup = BeautifulSoup(page.text, "html.parser")
+        self.card_dict = json.loads(soup.text)
+        self.card_layout = self.card_dict['layout']
+        try:
+            if self.card_dict['layout'] == 'normal':
+                self.card_name = self.card_dict['name']
+                self.mc = self.card_dict['mana_cost']
+                self.card_type = self.card_dict['type_line']
+                self.card_text = self.card_dict['oracle_text'].split('\n')
+                self.legal_status = self.card_dict['legalities']['commander']
+            elif self.card_dict['layout'] == 'modal_dfc':
+                self.card_name = f"Front: {self.card_dict['card_faces'][0]['name']} Back: {self.card_dict['card_faces'][1]['name']}"
+                self.mc = f"Front: {self.card_dict['card_faces'][0]['mana_cost']} Back: {self.card_dict['card_faces'][1]['mana_cost']}"
+                self.card_type = self.card_dict['type_line']
+                self.card_text = self.card_dict['card_faces'][0]['oracle_text'].split('\n')
+                self.card_text = ["Front: " + text for text in self.card_text]
+                back = self.card_dict['card_faces'][1]['oracle_text'].split('\n')
+                for text in back:
+                    self.card_text.append("Back: " + text)
+                self.legal_status = self.card_dict['legalities']['commander']
+        except Exception as e:
+            print(e)
+            print(self.card_name)
+
+        time.sleep(.25)
+
+
+"""card = Card('', '', '', [], '')
 proxy = 'http://45.225.184.177:999'
-card.populate_card_info('Mana Crypt', proxy)
-# print(f'{card.card_name}, {card.card_type}, {card.card_text}, {card.cmc}, {card.legal_status}')
+card.populate_with_api('Mountain')
+print(f'{card.card_name}, {card.card_type}, {card.card_text}, {card.mc}, {card.legal_status}')
 """
