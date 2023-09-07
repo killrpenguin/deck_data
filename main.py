@@ -7,7 +7,8 @@ for target in target_objects:
     if 'moxfield' == target.link_group:
         target.get_mx(proxy=proxy)
         print(f'{target.deck_link} {target.deck_name} {target.category}, {target.deck_author}, {target.deck_commander}')
-        for card in target.deck_list:
-            card_obj = Card('', '', '', [], '', '', {})
-            card_obj.populate_with_api(card)
-            card_obj.print_card_details()
+        for card_obj in target.deck_list:
+            card_name = target.deck_list.pop()
+            target.deck_list.append(Card(card_name=card_name))
+        for i in target.deck_list:
+            print(i.face_name)

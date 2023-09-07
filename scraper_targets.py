@@ -1,7 +1,7 @@
 import random
 import re
 from selenium.webdriver.support import expected_conditions as ec
-from selenium.common import NoSuchElementException, ElementNotInteractableException, TimeoutException
+from selenium.common import NoSuchElementException, ElementNotInteractableException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 import helper_functions
