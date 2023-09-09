@@ -17,7 +17,7 @@ class Face:
 
 
 class Card():
-    def __init__(self, card_name):
+    def __init__(self, card_name=str):
         self.card_name = card_name
         self.card_dict = self.get_json_dict(card_name)
         self.card_layout = self.card_dict['layout']
@@ -53,4 +53,4 @@ class Card():
 test = 'catch // release'
 card = Card(card_name=test)
 
-print(card.card_name, card.faces[1])
+print(card.card_name, card.faces[0].mana_cost)
