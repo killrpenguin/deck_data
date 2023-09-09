@@ -5,7 +5,7 @@ from selenium.common import NoSuchElementException, ElementNotInteractableExcept
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 import helper_functions
-from card_object import Card
+
 
 class Scraper_Targets():
     def __init__(self, deck_link, link_group=None, category=None, deck_commander=None):
