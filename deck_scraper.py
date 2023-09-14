@@ -120,8 +120,6 @@ class Deck:
         return self.deck_name, self.deck_list, self.deck_author
 
 
-
-
 class Card(Deck):
     def __init__(self, card_name):
         super().__init__(self.deck_link, self.proxy)
