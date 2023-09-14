@@ -6,24 +6,22 @@ import requests
 from bs4 import BeautifulSoup
 
 
-@dataclass
-class Face:
-    face_name: str = field(default=str)
-    cmc: float = field(default=float)
-    mana_cost: str = field(default=str)
-    card_type: str = field(default=str)
-    card_text: List = field(default=list)
-    color_ident: str = field(default=str)
-
-
-class Card():
-    def __init__(self, card_name=str):
+class Card(Deck):
+    def __init__(self, card_name):
+        super().__init__(self.deck_link, self.proxy)
+        self.deck_link = self.deck_link
+        self.proxy = self.proxy
         self.card_name = card_name
         self.card_dict = self.get_json_dict(card_name)
         self.card_layout = self.card_dict['layout']
         self.faces = self.make_faces(self.card_dict)
         self.legal_status = self.card_dict['legalities']['commander']
 
+    def display_card(self):
+        print(f"Card Name: {self.card_name}\n"
+              f"Layout: {self.card_layout}")
+        for face in self.faces:
+            print(f"\ncmc: {face.cmc}, mc: {face.mana_cost}, type: {face.card_type}, colors: {face.color_ident}")
 
     def get_json_dict(self, card) -> Dict:
         link = "https://api.scryfall.com/cards/named?fuzzy=" + card
@@ -50,7 +48,11 @@ class Card():
         return faces
 
 
-test = 'catch // release'
-card = Card(card_name=test)
-
-print(card.card_name, card.faces[0].mana_cost)
+@dataclass
+class Face(Deck):
+    face_name: str = field(default=str)
+    cmc: float = field(default=float)
+    mana_cost: str = field(default=str)
+    card_type: str = field(default=str)
+    card_text: List = field(default=list)
+    color_ident: str = field(default=str)

@@ -15,3 +15,4 @@ def web_driver(*, proxy):
     edge_options.add_argument("--proxy_server=%s" % proxy)
     driver = selenium.webdriver.Edge(options=edge_options)
     return driver
+
