@@ -99,8 +99,11 @@ class Deck:
         return self.deck_hosted_on
 
     def get_deck_list(self):
-        if self.deck_hosted_on == 'moxfield':
-            return self.get_mx()
+        match self.deck_hosted_on:
+            case 'moxfield':
+                return self.get_mx()
+            case 'tappedout':
+                return self.get_tppdout()
 
     def get_mx(self):
         deck_xpath = '/html/body/div[1]/main/div[8]/div[1]/div[2]/div[1]'
@@ -116,7 +119,23 @@ class Deck:
         self.deck_list = [name for name in deck_list if "1" not in name if "$" not in name if '' != name]
         author = wait.until(ec.presence_of_element_located((By.XPATH, author_xpath))).text.split('\n')
         self.deck_author = [auth for auth in author]
-        self.deck_name = wait.until(ec.presence_of_element_located((By.XPATH, name_xpath))).text
+        self.deck_name = wait.until(ec.presence_of_element_located((By.XPATH, name_xpath))).text.strip()
+        return self.deck_name, self.deck_list, self.deck_author
+
+    def get_tppdout(self):
+        name_xpath = "/html/body/div[1]/div[1]/div[6]/div/div[1]/div[1]/div/div/h2"
+        author_xpath = "/html/body/div[1]/div[1]/div[6]/div/div[1]/div[1]/div/div/p[2]/a"
+        deck_xpath = "/html/body/div[1]/div[1]/div[6]/div/div[1]/div[2]/div[2]/div[1]/div[2]"
+        self.driver.get(self.deck_link)
+        wait = WebDriverWait(self.driver, 30)
+        self.deck_name = wait.until(ec.presence_of_element_located((By.XPATH, name_xpath))).text.strip()
+        self.deck_author = wait.until(ec.presence_of_element_located((By.XPATH, author_xpath))).text.strip()
+        self.deck_list = wait.until(ec.presence_of_element_located((By.XPATH, deck_xpath))).text.split("\n")
+        self.deck_list = [
+            re.sub(
+                "^[0-9]*x\s|^\d|^C.+\(.+\)|^A.+\(.+\)|^E.+\(.+\)|^B.+\(.+\)|^P.+\(.+\)|^I.+\(.+\)|^S.+\(.+\)|^L.+\(.+\)",
+            '', card) for card in self.deck_list]
+        self.deck_list = [card.strip() for card in self.deck_list if '' != card]
         return self.deck_name, self.deck_list, self.deck_author
 
 

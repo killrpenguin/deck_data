@@ -5,13 +5,27 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from bs4 import BeautifulSoup as bs
 from helper_functions import web_driver
+import selenium
+from selenium.webdriver import EdgeOptions
 import re
 
+link = "https://tappedout.net/mtg-decks/26-04-19-zada-storm/"
 
-deck_objects_list = []
 proxy = 'http://24.158.29.166:80'
 testing = Decks()
-for link in testing.deck_list_database:
-    deck_obj = Deck(deck_link=link, proxy=proxy)
-    deck_objects_list.append(deck_obj)
-    print(f"{deck_obj.deck_name}, {deck_obj.deck_author} {len(deck_obj.deck_list)}")
+for i in testing.deck_list_database:
+    if ('moxfield' not in i) or ('tappedout' not in i):
+        print(i)
+"""name_xpath = "/html/body/div[1]/div[1]/div[6]/div/div[1]/div[1]/div/div/h2"
+author_xpath = "/html/body/div[1]/div[1]/div[6]/div/div[1]/div[1]/div/div/p[2]/a"
+deck_xpath = "/html/body/div[1]/div[1]/div[6]/div/div[1]/div[2]/div[2]/div[1]/div[2]"
+edge_options = EdgeOptions()
+edge_options.use_chromium = True
+edge_options.add_argument('headless'), edge_options.add_argument('disable-gpu')
+edge_options.add_argument("--proxy_server=%s" % proxy)
+driver = selenium.webdriver.Edge(options=edge_options)
+driver.get(link)
+wait = WebDriverWait(driver, 20)
+
+driver.close()
+"""
