@@ -1,5 +1,6 @@
 import requests
 import re
+import random
 import asyncio
 import proxy_pool
 import selenium
@@ -24,7 +25,7 @@ from selenium.webdriver import EdgeOptions
 class Decks:
     def __init__(self):
         self.deck_list_database = self.get_ddb_list()
-        self.proxies = 'http://24.158.29.166:80'
+        self.proxies = 'http://43.157.8.79:8888'
         # self.proxies = proxy_pool.asyncio.run(main_proxy_pool())
         self.decks = []
 
@@ -50,6 +51,7 @@ class Decks:
 class Deck:
     def __init__(self, deck_link, proxy):
         self.proxy = proxy
+        self.user_agent = self.random_useragent()
         """Selenium webdriver doesn't have async capabilities. Instantiating its webdriver as an async task"""
         self.driver = self.web_driver(proxy=self.proxy)
         self.deck_link = deck_link
@@ -62,6 +64,12 @@ class Deck:
         self.deck_name = self.deck_data[0]
         self.deck_author = self.deck_data[2]
         self.card_obj_list = []
+
+    def random_useragent(self):
+        with open("user-agents.txt", "r") as user_agents:
+            user_agents = user_agents.read().strip().split('\n')
+            self.user_agent = user_agents.pop(random.randint(0, len(user_agents)))
+            return self.user_agent
 
     def disp_deck_data(self):
         print(f"Name: {self.deck_name}, Author: {self.deck_author}, List: {len(self.deck_list)}")
@@ -80,8 +88,9 @@ class Deck:
         edge_options.add_argument('headless'),
         edge_options.add_argument('disable-gpu')
         edge_options.add_argument("--proxy_server=%s" % proxy)
-        driver = selenium.webdriver.Edge(options=edge_options)
-        return driver
+        edge_options.add_argument("--user-agent=%s" % self.user_agent)
+        with selenium.webdriver.Edge(options=edge_options) as driver:
+            return driver
 
     def sort_links(self) -> str:
         f = open('competitive_decks', 'r')

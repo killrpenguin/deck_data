@@ -9,16 +9,17 @@ import selenium
 from selenium.webdriver import EdgeOptions
 import re
 
-link = "https://tappedout.net/mtg-decks/26-04-19-zada-storm/"
+
+link = "https://archidekt.com/decks/86888"
 
 proxy = 'http://24.158.29.166:80'
 testing = Decks()
-for i in testing.deck_list_database:
-    if ('moxfield' not in i) or ('tappedout' not in i):
-        print(i)
-"""name_xpath = "/html/body/div[1]/div[1]/div[6]/div/div[1]/div[1]/div/div/h2"
-author_xpath = "/html/body/div[1]/div[1]/div[6]/div/div[1]/div[1]/div/div/p[2]/a"
-deck_xpath = "/html/body/div[1]/div[1]/div[6]/div/div[1]/div[2]/div[2]/div[1]/div[2]"
+
+testing.mk_deck_objs()
+
+"""name_xpath = "/html/body/div[1]/div[1]/div[2]/main/div[1]/div/div[1]/div[2]/div[1]/div[2]/div[1]"
+author_xpath = "/html/body/div[1]/div[1]/div[2]/main/div[1]/div/div[1]/div[2]/div[1]/div[1]/a"
+deck_xpath = "/html/body/div[1]/div[1]/div[2]/main/div[1]/div/div[2]/div[2]/div"
 edge_options = EdgeOptions()
 edge_options.use_chromium = True
 edge_options.add_argument('headless'), edge_options.add_argument('disable-gpu')
@@ -26,6 +27,9 @@ edge_options.add_argument("--proxy_server=%s" % proxy)
 driver = selenium.webdriver.Edge(options=edge_options)
 driver.get(link)
 wait = WebDriverWait(driver, 20)
-
+name = wait.until(ec.presence_of_element_located((By.XPATH, name_xpath))).text
+author = wait.until(ec.presence_of_element_located((By.XPATH, author_xpath))).text
+deck = wait.until(ec.presence_of_element_located((By.XPATH, deck_xpath))).text
+print(f"{name}, {author}, {deck}")
 driver.close()
 """
